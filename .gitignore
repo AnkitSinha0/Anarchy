@@ -1,0 +1,9 @@
+/target/
+*.o
+*.elf
+*.bin
+!tests/fixtures/*.bin
+*.WAD
+*.wad
+
+/JIT/
