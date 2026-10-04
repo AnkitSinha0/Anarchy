@@ -63,6 +63,7 @@ anarchy/
   riscv64-unknown-elf-ld -m elf32lriscv -Ttext=0x80000000 prog.o -o prog.elf
   riscv64-unknown-elf-objcopy -O binary prog.elf prog.bin
   ```
+- Calling WSL from Git Bash: prefix with `MSYS_NO_PATHCONV=1` and `cd` inside the bash command (`wsl --cd` fails on the space in "das Projekt").
 
 ## Phases (do not skip ahead)
 
@@ -186,5 +187,5 @@ Also add one retro bullet per phase: "Predictions I got wrong" (from section 5).
 ---
 
 ## Current status
-Setup done 2026-10-03 (CLAUDE.md, DECISIONS.md, README, git init). `JIT/Phase1.brief.md` written; waiting for `JIT/Phase1.predict.md` and "go".
-Phase 1, step 1: not started.
+Phase 1, steps 1–2 done 2026-10-04: workspace (`isa`, `sim`), Bus + `Device` trait, RAM as a device, fetch-decode-execute with ADDI/ADD. `tests/asm/add.s` assembled with GCC 13.2 runs to `x3 = 5`. User skipped predictions for Phase 1.
+Next: Phase 1 step 3 (full RV32I, then M; unit test every instruction).

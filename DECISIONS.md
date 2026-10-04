@@ -17,3 +17,13 @@ Why: The simulator needs a native window (`minifb`), which is simplest on the Wi
 Alternative considered: a Windows build of the RISC-V GCC toolchain (e.g. xPack) — rejected because picolibc and the riscv-tests Makefiles assume a Unix shell anyway.
 Alternative considered: everything inside WSL — rejected because the `minifb` window would depend on WSLg.
 Would flip if: the CI runner (Linux) becomes the main way the project is built, at which point WSL-only is simpler.
+
+## [2026-10-04] Decode into a Rust enum with named fields, not raw-word helpers at execute time
+Why: `decode()` turns the scrambled bit fields into `Instr::Addi { rd, rs1, imm }` once, in the `isa` crate. The CPU, the tracer and the disassembler then all match on the same enum and never touch bit positions. The compiler checks every `match` is exhaustive, so a newly added instruction can't be silently skipped by the executor.
+Alternative considered: keep the `u32` and extract fields inside each execute arm — rejected because it duplicates the bit-twiddling in every consumer, and immediate sign extension is exactly where first implementations go wrong.
+Would flip if: profiling shows decode is the bottleneck for DOOM. The fix then is a pre-decoded instruction cache in front of the enum, not dropping it.
+
+## [2026-10-04] DRAM is an ordinary `Device` on the bus, no fast path
+Why: Every access goes through one `Bus::find` → `dyn Device` path, so faults, bounds checks and (later) tracing behave the same for RAM and MMIO. It's the simplest correct design.
+Alternative considered: a direct `Vec<u8>` fast path for DRAM addresses in the CPU — rejected for now because speed doesn't matter until DOOM, and two access paths double the places a bounds or endianness bug can hide.
+Would flip if: Phase 4 measurements show the simulator can't hold real-time DOOM speed and bus dispatch shows up in the profile.
